@@ -61,7 +61,7 @@ for data_dir in [data_dir1, data_dir2]:
     epoch = d["Epoch"]
     epoch.name = None
     #print(d["Epoch"])
-    d["bm"] = dat[11]#new horizons didnt measure magnetic field :(
+    d["bm"] = dat[11]
     # d["np"] = dat["n"]
     # d["vp_m"] = dat["v"][:]
     # d["Tp"] = dat["t"][:]
