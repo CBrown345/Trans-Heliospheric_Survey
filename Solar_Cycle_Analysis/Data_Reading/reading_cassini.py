@@ -25,16 +25,18 @@ for fname in fnames:
     dat = cdf(fname)
     d["Epoch"] = dat["Epoch"][:]
     d["bm"] = dat["B_mag"][:]
-    #d["np"] = dat["protonDensity"][:]
-    #d["vp_m"] = dat["ProtonSpeed"][:]
-    #d["Tp"] = dat["protonTemp"][:]
+    d["np"] = np.full_like(dat["B_mag"][:], np.nan, dtype=float)
+    d["vp_m"] = np.full_like(dat["B_mag"][:], np.nan, dtype=float)
+    d["Tp"] = np.full_like(dat["B_mag"][:], np.nan, dtype=float)
     d["sc_r"] = dat["sc_r"][:]
     d['heliographicLatitude'] = dat["sc_lat"][:]
     d['heliographicLongitude'] = dat["sc_long"][:]
     #resample everything to exactly 1hr, to avoid any weirdness if the timestamps are slightly off
     df = pd.DataFrame(d, index=d["Epoch"])
     for col in df.select_dtypes(include=[np.number]).columns:# filter out bad data
-        df[col] = df[col].apply(lambda x: np.nan if np.isclose(x, -1.0e31) else x)
+        df[col] = df[col].apply(
+        lambda x: np.nan if pd.api.types.is_number(x) and np.isclose(x, -1.0e31) else x
+        )   
     dfr = df.resample('3600s').mean()
     dfr.index=dfr.index.tz_localize('UTC')
     dfr.insert(0,'ssepoch',pd.Series(dfr.index,index=dfr.index).apply(datetime.datetime.timestamp))

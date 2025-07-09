@@ -7,7 +7,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from Miscellaneous.useful_functions import bin_data
-
+from Miscellaneous.useful_functions import scale_data
 def time_separate(fname, start_times, end_times, save_file, sc):
     """Function to separate individual spacecraft binned data into 
     files 
@@ -48,6 +48,7 @@ def time_separate(fname, start_times, end_times, save_file, sc):
             slices.append(df.loc[mask])
     df_out = pd.concat(slices, axis=0, )
     df_out.to_hdf(save_file,key = 'data', mode='w')
+    return df_out
 
 # time_separate("Data_Processed/Individual/voyager1/voyager1_unbinned_19770101_20241201.hf",
 #               [datetime(1990, 2,3), datetime(2000,2,3)],
@@ -77,7 +78,7 @@ scs = [
 ]
 years = [1956, 1961, 1967, 1972.5, 1978.5, 1983.5, 1988, 1993, 1998.5, 2004, 2011, 2017, 2022.5, 2024.75]
 dates = [pd.to_datetime(f"{int(y)}") + pd.to_timedelta((y % 1) * 365.25, unit='D') for y in years]
-#VERSION1
+#VERSION 1
 # #Solar Max
 # for sc in scs:
 #     print(sc)
@@ -93,27 +94,45 @@ dates = [pd.to_datetime(f"{int(y)}") + pd.to_timedelta((y % 1) * 365.25, unit='D
 #                   dates[1:-1:2], dates[2::2], f"Data_Processed/Individual/{sc}/{sc}_solar_min_unbinned_v1.hf", sc)
 #     bin_data(pd.read_hdf(f"Data_Processed/Individual/{sc}/{sc}_solar_min_unbinned_v1.hf"),
 #                   f"Data_Processed/Individual/{sc}/{sc}_solar_min_binned_v1", n_bin = 85)
-
+#VERSION 2
+n_key_list = [
+                    "Tp",
+                    "bm",
+                    "np",
+                    "vp_m",
+                    "sc_r"
+                ]
 #Solar Max
 smax_starts = [1956.5,1967.5,1978.5, 1989, 1999, 2011.5, 2022.75]
 smax_ends = [1960.5, 1971, 1982.75, 1992.5, 2003, 2015, 2025]
 smax_starts_dt  = [pd.to_datetime(f"{int(y)}") + pd.to_timedelta((y % 1) * 365.25, unit='D') for y in smax_starts]
 smax_ends_dt = [pd.to_datetime(f"{int(y)}") + pd.to_timedelta((y % 1) * 365.25, unit='D') for y in smax_ends]
+smax_df_ind = []
 for sc in scs:
     print(sc)
-    time_separate(glob.glob(f"Data_Processed/Individual/{sc}/{sc}_unbinned_*.hf")[0], 
+    df_sc = time_separate(glob.glob(f"Data_Processed/Individual/{sc}/{sc}_unbinned_*.hf")[0], 
                   smax_starts_dt, smax_ends_dt, f"Data_Processed/Individual/{sc}/{sc}_solar_max_unbinned_v2.hf", sc)
+    smax_df_ind.append(df_sc)
     bin_data(pd.read_hdf(f"Data_Processed/Individual/{sc}/{sc}_solar_max_unbinned_v2.hf"),
                   f"Data_Processed/Individual/{sc}/{sc}_solar_max_binned_v2", n_bin = 85)
-    
+smax_all = pd.concat(smax_df_ind, axis=0, )
+bin_data(smax_all, f"Data_Processed/msc/smax_msc_unscaled_v2", n_bin=85)
+smax_msc_scaled = scale_data(smax_all,key_list=n_key_list )
+bin_data(smax_msc_scaled, f"Data_Processed/msc/smax_msc_scaled_v2", n_bin=85)
 #Solar Min
 smin_starts = [1961.5,1973.35, 1984, 1994, 2005, 2017]
 smin_ends = [1966.5, 1977.75, 1988, 1998, 2010.75, 2021.5]
 smin_starts_dt = [pd.to_datetime(f"{int(y)}") + pd.to_timedelta((y % 1) * 365.25, unit='D') for y in smin_starts]
 smin_ends_dt = [pd.to_datetime(f"{int(y)}") + pd.to_timedelta((y % 1) * 365.25, unit='D') for y in smin_ends]
+smin_df_ind = []
 for sc in scs:
     print(sc)
-    time_separate(glob.glob(f"Data_Processed/Individual/{sc}/{sc}_unbinned_*.hf")[0], 
+    df_sc = time_separate(glob.glob(f"Data_Processed/Individual/{sc}/{sc}_unbinned_*.hf")[0], 
                   smin_starts_dt, smin_ends_dt, f"Data_Processed/Individual/{sc}/{sc}_solar_min_unbinned_v2.hf", sc)
+    smin_df_ind.append(df_sc)
     bin_data(pd.read_hdf(f"Data_Processed/Individual/{sc}/{sc}_solar_min_unbinned_v2.hf"),
                   f"Data_Processed/Individual/{sc}/{sc}_solar_min_binned_v2", n_bin = 85)
+smin_all = pd.concat(smin_df_ind, axis=0, )
+bin_data(smin_all, f"Data_Processed/msc/smin_msc_unscaled_v2", n_bin=85)
+smin_msc_scaled = scale_data(smin_all,key_list=n_key_list )
+bin_data(smin_msc_scaled, f"Data_Processed/msc/smin_msc_scaled_v2", n_bin=85)

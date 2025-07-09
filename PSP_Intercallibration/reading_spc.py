@@ -24,12 +24,15 @@ for fname in fnames:
     #create a dictionary with the cdf files
     d = {}
     dat = cdf(fname)
+    print(fname)
+    #print(dat.keys)
     d["Epoch"] = dat["Epoch"][:]
     d["np"] = dat["np_moment"][:]
     v = np.array(dat["vp_moment_RTN"][:])  
     d["vp_m"] = np.linalg.norm(v, axis=1)
-    temp = np.array(dat["wp_moment"])
-    d["Tp"] = c.proton_mass * (temp**2) / (2 * c.Boltzmann)
+    d["wp"]  = dat["wp_moment"]
+    d["wp1_maxwellian"] = dat["wp1_fit"]
+    d["wp_maxwellian"] = dat["wp_fit"]
     r = np.array(dat["sc_pos_HCI"][:])  
     d["sc_r"] = np.linalg.norm(r, axis=1)
     #d["sc_r"] = dat["SUN_DIST"][:]

@@ -19,8 +19,8 @@ count = 0
 d = {}
 dat = cdf(data_dir)
 d["Epoch"] = dat["Epoch"][:]
-#d["bm"] = dat["ABS_B"][:] #new horizons didnt measure magnetic field :(
 d["np"] = dat["n"][:]
+d["bm"] = np.full_like(dat["n"][:], np.nan, dtype=float) #new horizons didnt measure magnetic field :(
 d["vp_m"] = dat["v"][:]
 d["Tp"] = dat["t"][:]
 d["sc_r"] = dat["NH_HGI_D_R"][:]

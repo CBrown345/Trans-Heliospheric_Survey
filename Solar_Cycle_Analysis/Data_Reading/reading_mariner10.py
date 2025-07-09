@@ -62,9 +62,9 @@ for data_dir in [data_dir1, data_dir2]:
     epoch.name = None
     #print(d["Epoch"])
     d["bm"] = dat[11]
-    # d["np"] = dat["n"]
-    # d["vp_m"] = dat["v"][:]
-    # d["Tp"] = dat["t"][:]
+    d["np"] = np.full_like(dat[11], np.nan, dtype=float)
+    d["vp_m"] = np.full_like(dat[11], np.nan, dtype=float)
+    d["Tp"] = np.full_like(dat[11], np.nan, dtype=float)
     d["sc_r"] = dat[3]
     d['heliographicLatitude'] = dat[6]
     d['heliographicLongitude'] = dat[5]
